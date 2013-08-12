@@ -3,7 +3,7 @@ import audioop
 import wave
 from pygsr import Pygsr
 import wolframalpha
-import urllib, urllib2, os, pycurl
+import urllib, urllib2, os
  
 class Record():
  

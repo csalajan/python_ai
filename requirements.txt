@@ -1,5 +1,6 @@
 argparse==1.2.1
 distribute==0.6.24
 pyCLI==2.0.3
+pygsr==0.1
 wolframalpha==1.0.2
 wsgiref==0.1.2
