@@ -110,7 +110,7 @@ class Record():
             f = open("data.mp3", "wb")
             f.write(opener.open(request).read())
             f.close()
-            os.system("mplayer data.mp3")
+            os.system("mplayer -noconsolecontrols data.mp3")
 
 if __name__ == '__main__':
     x = Record()
@@ -127,3 +127,4 @@ if __name__ == '__main__':
            print(response)
            x.speak(response)
            recorded = True
+
