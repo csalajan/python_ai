@@ -1,16 +1,20 @@
+from time import sleep
 import pyaudio
 import audioop
 import wave
 from pygsr import Pygsr
 import wolframalpha
 import urllib, urllib2, os
-from chatterbot import ChatterBotFactory, ChatterBotType
+from chatterbot import (
+        ChatterBotFactory as CBFactory, 
+        ChatterBotType as CBType,
+    )
 from subprocess import Popen
  
 class Record():
  
     def __init__(self):
-        self.threshold = 17000
+        self.threshold = 26000
         self.format = pyaudio.paInt16
         self.chunk = 1024
         self.rate = 44100
@@ -74,6 +78,11 @@ class Record():
                 os.system("banshee --stop &")
                 ret = True
                 return "Stopping Music"
+        # EXIT BRUHH
+        exit = ['exit', 'duck you', 'fellow']
+        for x in exit:
+            if x in query:
+                return 'exit'
 
         if ret == False:
             return False
@@ -96,8 +105,8 @@ class Record():
             return False
     
     def cleverbot(self, query):
-        factory = ChatterBotFactory()
-        bot1 = factory.create(ChatterBotType.CLEVERBOT)
+        factory = CBFactory()
+        bot1 = factory.create(CBType.CLEVERBOT)
         bot1session = bot1.create_session()
 
         return bot1session.think(query)
@@ -154,19 +163,26 @@ if __name__ == '__main__':
     x = Record()
     x.setup()
     recorded = False
-    while not recorded:
+    response = None
+    while response is not 'exit':
         x.read()
         rms = audioop.rms(x.data, 2)
+        print rms
         if rms > x.threshold:
-           speech = Pygsr()
-           speech.record(5)
-           phrase, complete_response = speech.speech_to_text('en_EN')
-           response = x.custom(phrase)
-           if response == False:
+            speech = Pygsr()
+            speech.record(5)
+            phrase, complete_response = speech.speech_to_text('en_EN')
+            response = x.custom(phrase)
+            if response == False:
                 response = x.Wolfram(phrase)
                 if response == False:
                     response = x.cleverbot(phrase)
-           print(response)
-           x.speak(response)
-           recorded = True
+            print('PHRASEPHRASEPHRASE')
+            print(phrase)
+            print(response)
+            x.speak(response)
+            recorded = True
+            rms = 0
+        x.setup()
+            
 
