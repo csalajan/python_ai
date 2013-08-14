@@ -5,6 +5,7 @@ from pygsr import Pygsr
 import wolframalpha
 import urllib, urllib2, os
 from chatterbot import ChatterBotFactory, ChatterBotType
+from subprocess import Popen
  
 class Record():
  
@@ -146,7 +147,8 @@ class Record():
             f = open("data.mp3", "wb")
             f.write(opener.open(request).read())
             f.close()
-            os.system('mplayer -ao alsa -noconsolecontrols data.mp3')
+	    Popen(['mplayer', 'data.mp3', '-really-quiet']).wait()
+            #os.system('mplayer -ao alsa -noconsolecontrols data.mp3')
 
 if __name__ == '__main__':
     x = Record()
