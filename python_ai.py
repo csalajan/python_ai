@@ -4,6 +4,7 @@ import wave
 from pygsr import Pygsr
 import wolframalpha
 import urllib, urllib2, os
+from chatterbot import ChatterBotFactory, ChatterBotType
  
 class Record():
  
@@ -55,6 +56,28 @@ class Record():
     def read(self):
         self.data = self.stream.read(self.chunk)
 
+    def custom(self, query):
+        ret = False
+        #play music
+        music = {"play music", "tunes", "jam", "play some music"}
+        for x in music:
+            if x in query:
+                os.system("banshee --play &")
+                ret = True
+                return "Playing Music"
+
+        #Stop Music
+        music_stop = {"stop music", "quiet"}
+        for x in music_stop:
+            if x in query:
+                os.system("banshee --stop &")
+                ret = True
+                return "Stopping Music"
+
+        if ret == False:
+            return False
+
+    
     def Wolfram(self, query):
         wolfram_id='6XRJP6-E45RHG32RR'
         client = wolframalpha.Client(wolfram_id)
@@ -68,6 +91,16 @@ class Record():
                 return "I do not have an answer for that"
             texts = texts.encode('ascii', 'ignore')
             return texts
+        else:
+            return False
+    
+    def cleverbot(self, query):
+        factory = ChatterBotFactory()
+        bot1 = factory.create(ChatterBotType.CLEVERBOT)
+        bot1session = bot1.create_session()
+
+        return bot1session.think(query)
+
 
     def tts(self, query):
         url = "http://translate.google.com/translate_tts?tl=en&"
@@ -104,13 +137,16 @@ class Record():
         toSay = self.breakdown(query)
         for sent in toSay:
             googleSpeechUrl = self.tts(sent)
+            #agent = ("Mozilla/5.0 (Windows NT 6.1; WOW65) "
+            #         "AppleWebKit/537.17 "
+            #         "(KHTML, like Gecko) Chrome/25.0.1312.60 Safari/537.12")
             request = urllib2.Request(googleSpeechUrl)
             request.add_header('User-agent', 'Mozilla/5.0')
             opener = urllib2.build_opener()
             f = open("data.mp3", "wb")
             f.write(opener.open(request).read())
             f.close()
-            os.system("mplayer -noconsolecontrols data.mp3")
+            os.system('mplayer -ao alsa -noconsolecontrols data.mp3')
 
 if __name__ == '__main__':
     x = Record()
@@ -123,7 +159,11 @@ if __name__ == '__main__':
            speech = Pygsr()
            speech.record(5)
            phrase, complete_response = speech.speech_to_text('en_EN')
-           response = x.Wolfram(phrase)
+           response = x.custom(phrase)
+           if response == False:
+                response = x.Wolfram(phrase)
+                if response == False:
+                    response = x.cleverbot(phrase)
            print(response)
            x.speak(response)
            recorded = True
